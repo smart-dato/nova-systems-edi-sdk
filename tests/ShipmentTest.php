@@ -1,5 +1,7 @@
 <?php
 
+use Saloon\Http\Faking\MockClient;
+use Saloon\Http\Faking\MockResponse;
 use SmartDato\NovaSystemsEdi\Connectors\NovaSystemsEdiConnector;
 use SmartDato\NovaSystemsEdi\Data\DeleteShipmentRequestData;
 use SmartDato\NovaSystemsEdi\Data\DocumentAttachmentData;
@@ -435,15 +437,25 @@ it('can create a real-world La Sportiva shipment example', function () {
     expect($array['ShipmentData']['GoodsDetails'][0]['Sizes'])->toHaveCount(9);
     expect($array['ParcelLabelsGenerationMode'])->toBe('ZplOneForEachLabel');
 
+    $mockClient = new MockClient([
+        PostShipmentRequest::class => MockResponse::make([], 200),
+    ]);
+
     $client = new NovaSystemsEdiConnector(
-        apiKey: 'your_api_key_here',
+        apiKey: 'test-api-key',
         baseUrl: 'https://api.novasystemsedi.com',
     );
-    $response = $client->send(
-        new PostShipmentRequest(
-            $requestData
-        )
-    );
+    $client->withMockClient($mockClient);
 
-    ray($response);
+    $response = $client->send(new PostShipmentRequest($requestData));
+
+    expect($response->successful())->toBeTrue();
+
+    $mockClient->assertSent(function (PostShipmentRequest $request) {
+        $body = $request->body()->all();
+
+        return $request->resolveEndpoint() === '/novaexchange/shipments'
+            && $body['InterchangeToken'] === 'NEW04V0GC831NVCZK81W9S3HMJPC23C'
+            && $body['ShipmentData']['EditShipmentFullNumber'] === '01/2025/311916';
+    });
 });
