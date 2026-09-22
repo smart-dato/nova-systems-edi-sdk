@@ -1,5 +1,6 @@
 <?php
 
+use SmartDato\NovaSystemsEdi\Connectors\NovaSystemsEdiConnector;
 use SmartDato\NovaSystemsEdi\Data\DeleteShipmentRequestData;
 use SmartDato\NovaSystemsEdi\Data\DocumentAttachmentData;
 use SmartDato\NovaSystemsEdi\Data\PostShipmentRequestData;
@@ -434,7 +435,7 @@ it('can create a real-world La Sportiva shipment example', function () {
     expect($array['ShipmentData']['GoodsDetails'][0]['Sizes'])->toHaveCount(9);
     expect($array['ParcelLabelsGenerationMode'])->toBe('ZplOneForEachLabel');
 
-    $client = new \SmartDato\NovaSystemsEdi\Connectors\NovaSystemsEdiConnector(
+    $client = new NovaSystemsEdiConnector(
         apiKey: 'your_api_key_here',
         baseUrl: 'https://api.novasystemsedi.com',
     );
