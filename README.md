@@ -2,20 +2,12 @@
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/smart-dato/nova-systems-edi-sdk.svg?style=flat-square)](https://packagist.org/packages/smart-dato/nova-systems-edi-sdk)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/smart-dato/nova-systems-edi-sdk/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/smart-dato/nova-systems-edi-sdk/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/smart-dato/nova-systems-edi-sdk/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/smart-dato/nova-systems-edi-sdk/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
+[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/smart-dato/nova-systems-edi-sdk/code-style.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/smart-dato/nova-systems-edi-sdk/actions?query=workflow%3A%22Code+style%22+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/smart-dato/nova-systems-edi-sdk.svg?style=flat-square)](https://packagist.org/packages/smart-dato/nova-systems-edi-sdk)
 
 A Laravel SDK for the Nova Systems EDI API, built with [Saloon](https://docs.saloon.dev/).
 
 **API Documentation:** [Nova Systems EDI API Swagger](https://beonews.novasystems.it/api/swagger/index.html?urls.primaryName=EDI)
-
-## Support us
-
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/nova-systems-edi-sdk.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/nova-systems-edi-sdk)
-
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
-
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
 
 ## Installation
 
@@ -23,13 +15,6 @@ You can install the package via composer:
 
 ```bash
 composer require smart-dato/nova-systems-edi-sdk
-```
-
-You can publish and run the migrations with:
-
-```bash
-php artisan vendor:publish --tag="nova-systems-edi-sdk-migrations"
-php artisan migrate
 ```
 
 You can publish the config file with:
@@ -90,11 +75,13 @@ return [
 Add the following environment variables to your `.env` file:
 
 ```env
-NOVA_SYSTEMS_EDI_BASE_URL=https://api.novasystems.com
+NOVA_SYSTEMS_EDI_BASE_URL=https://your-nova-host
 NOVA_SYSTEMS_EDI_API_KEY=your-api-key
 NOVA_SYSTEMS_EDI_JWT_TOKEN=your-jwt-token
 NOVA_SYSTEMS_EDI_TIMEOUT=30
 ```
+
+Set `NOVA_SYSTEMS_EDI_BASE_URL` to the API host Nova Systems gives you; the config default is only a fallback.
 
 ## Authentication
 
@@ -197,37 +184,37 @@ use SmartDato\NovaSystemsEdi\Requests\PostShipmentRequest;
 $connector = app(NovaSystemsEdiConnector::class);
 
 $requestData = new PostShipmentRequestData(
-    interchangeToken: 'NEW04V0GC831NVCZK81W9S3HMJPC23C',
+    interchangeToken: 'your-interchange-token',
     shipmentData: new ShipmentData(
         serviceCode: 'EE',
         shipmentPracticeType: ShipmentPracticeType::RoadShipment,
         deliveryRequestType: DeliveryDateType::NoDeliveryPreference,
-        senderReferenceNumber: '0080070933',
-        editShipmentFullNumber: '01/2025/311916',
+        senderReferenceNumber: 'order-1001',
+        editShipmentFullNumber: '01/2025/000001',
         callerSubjectType: ShipmentSubjectType::Sender,
         branchCode: '01',
         shipmentDate: new DateTime('2025-10-22T10:54:44.22Z'),
         shipmentStatus: ShipmentStatusType::ToBeConfirmed,
         transportIncotermsCode: '1',
         sender: new SubjectData(
-            zipCode: '31047',
-            city: 'Levada',
+            zipCode: '20121',
+            city: 'Milano',
             countryCode: 'IT',
-            address: 'Via delle Industrie 19',
+            address: 'Via Roma 1',
             address2: '',
-            companyName: 'La Sportiva C/o Movimoda',
-            province: 'TV',
+            companyName: 'Sender S.r.l.',
+            province: 'MI',
         ),
         senderDocumentCode: 'ORD',
         consignee: new SubjectData(
-            zipCode: '74700',
-            city: 'Sallanches',
+            zipCode: '75001',
+            city: 'Paris',
             countryCode: 'FR',
-            address: 'ROUTE DU FAYET 925',
+            address: '1 Rue de Rivoli',
             address2: '',
-            companyName: 'AU VIEUX CAMPEUR SALLANCHES',
+            companyName: 'Consignee SARL',
         ),
-        consigneeReferenceNumber: '0080070933',
+        consigneeReferenceNumber: 'order-1001',
         isGoodsCollectionRequested: false,
         parcelLabelQuantity: 9,
         goodsDetails: [
@@ -256,8 +243,8 @@ $requestData = new PostShipmentRequestData(
             new ShipmentContactData(
                 subjectType: ContactSubjectType::Consignee,
                 title: ContactTitle::NotSelected,
-                name: 'AU VIEUX CAMPEUR SALLANCHES',
-                phoneNumber: '+33450912662',
+                name: 'Consignee SARL',
+                phoneNumber: '+33 1 00 00 00 00',
                 languageCode: 'en',
             ),
         ],
@@ -277,9 +264,9 @@ use SmartDato\NovaSystemsEdi\Requests\DeleteShipmentRequest;
 $connector = app(NovaSystemsEdiConnector::class);
 
 $requestData = new DeleteShipmentRequestData(
-    interchangeToken: 'NEW04V0GC831NVCZK81W9S3HMJPC23C',
+    interchangeToken: 'your-interchange-token',
     serviceCode: 'EE',
-    shipmentFullNumber: '01/2025/311916',
+    shipmentFullNumber: '01/2025/000001',
 );
 
 $response = $connector->send(new DeleteShipmentRequest($requestData));
@@ -294,10 +281,6 @@ composer test
 ## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
-
-## Contributing
-
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 ## Security Vulnerabilities
 
