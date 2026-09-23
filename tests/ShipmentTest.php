@@ -245,15 +245,15 @@ it('can serialize PostShipmentRequestData to array', function () {
     expect($array['ParcelLabelsGenerationMode'])->toBe('PdfGrouped');
 });
 
-it('can create a real-world La Sportiva shipment example', function () {
+it('can create a full multi-parcel shipment', function () {
     $requestData = new PostShipmentRequestData(
-        interchangeToken: 'NEW04V0GC831NVCZK81W9S3HMJPC23C',
+        interchangeToken: 'your-interchange-token',
         shipmentData: new ShipmentData(
             serviceCode: 'EE',
             shipmentPracticeType: ShipmentPracticeType::RoadShipment,
             deliveryRequestType: DeliveryDateType::NoDeliveryPreference,
-            senderReferenceNumber: '0080070933',
-            editShipmentFullNumber: '01/2025/311916',
+            senderReferenceNumber: 'order-1001',
+            editShipmentFullNumber: '01/2025/000001',
             callerSubjectType: ShipmentSubjectType::Sender,
             branchCode: '01',
             shipmentDate: new DateTime('2025-10-22T10:54:44.22Z'),
@@ -261,29 +261,29 @@ it('can create a real-world La Sportiva shipment example', function () {
             transportIncotermsCode: '1',
             commissionerReferenceNumber: '',
             sender: new SubjectData(
-                zipCode: '31047',
-                city: 'Levada',
+                zipCode: '20121',
+                city: 'Milano',
                 countryCode: 'IT',
-                address: 'Via delle Industrie 19',
+                address: 'Via Roma 1',
                 address2: '',
-                companyName: 'La Sportiva C/o Movimoda',
-                province: 'TV',
+                companyName: 'Sender S.r.l.',
+                province: 'MI',
                 geocodeLatitude: 0,
                 geocodeLongitude: 0,
             ),
             senderDocumentCode: 'ORD',
             consignee: new SubjectData(
-                zipCode: '74700',
-                city: 'Sallanches',
+                zipCode: '75001',
+                city: 'Paris',
                 countryCode: 'FR',
-                address: 'ROUTE DU FAYET 925',
+                address: '1 Rue de Rivoli',
                 address2: '',
-                companyName: 'AU VIEUX CAMPEUR SALLANCHES',
+                companyName: 'Consignee SARL',
                 province: '',
                 geocodeLatitude: 0,
                 geocodeLongitude: 0,
             ),
-            consigneeReferenceNumber: '0080070933',
+            consigneeReferenceNumber: 'order-1001',
             isGoodsCollectionRequested: false,
             parcelLabelQuantity: 9,
             palletQuantity: 0,
@@ -387,9 +387,9 @@ it('can create a real-world La Sportiva shipment example', function () {
                 new ShipmentContactData(
                     subjectType: ContactSubjectType::Consignee,
                     title: ContactTitle::NotSelected,
-                    name: 'AU VIEUX CAMPEUR SALLANCHES',
+                    name: 'Consignee SARL',
                     surname: '',
-                    phoneNumber: '+33450912662',
+                    phoneNumber: '+33 1 00 00 00 00',
                     mobileNumber: '',
                     languageCode: 'en',
                     emailAddress: '',
@@ -402,21 +402,21 @@ it('can create a real-world La Sportiva shipment example', function () {
 
     // Verify the structure
     expect($requestData)->toBeInstanceOf(PostShipmentRequestData::class);
-    expect($requestData->interchangeToken)->toBe('NEW04V0GC831NVCZK81W9S3HMJPC23C');
+    expect($requestData->interchangeToken)->toBe('your-interchange-token');
     expect($requestData->parcelLabelsGenerationMode)->toBe(ParcelLabelsGenerationMode::ZplOneForEachLabel);
 
     // Verify shipment data
     expect($requestData->shipmentData->serviceCode)->toBe('EE');
-    expect($requestData->shipmentData->editShipmentFullNumber)->toBe('01/2025/311916');
-    expect($requestData->shipmentData->senderReferenceNumber)->toBe('0080070933');
+    expect($requestData->shipmentData->editShipmentFullNumber)->toBe('01/2025/000001');
+    expect($requestData->shipmentData->senderReferenceNumber)->toBe('order-1001');
     expect($requestData->shipmentData->parcelLabelQuantity)->toBe(9.0);
 
     // Verify sender
-    expect($requestData->shipmentData->sender->companyName)->toBe('La Sportiva C/o Movimoda');
+    expect($requestData->shipmentData->sender->companyName)->toBe('Sender S.r.l.');
     expect($requestData->shipmentData->sender->countryCode)->toBe('IT');
 
     // Verify consignee
-    expect($requestData->shipmentData->consignee->companyName)->toBe('AU VIEUX CAMPEUR SALLANCHES');
+    expect($requestData->shipmentData->consignee->companyName)->toBe('Consignee SARL');
     expect($requestData->shipmentData->consignee->countryCode)->toBe('FR');
 
     // Verify goods details
@@ -427,13 +427,13 @@ it('can create a real-world La Sportiva shipment example', function () {
 
     // Verify contacts
     expect($requestData->shipmentData->contacts)->toHaveCount(1);
-    expect($requestData->shipmentData->contacts[0]->phoneNumber)->toBe('+33450912662');
+    expect($requestData->shipmentData->contacts[0]->phoneNumber)->toBe('+33 1 00 00 00 00');
 
     // Verify serialization produces correct JSON structure
     $array = $requestData->toArray();
-    expect($array['InterchangeToken'])->toBe('NEW04V0GC831NVCZK81W9S3HMJPC23C');
-    expect($array['ShipmentData']['EditShipmentFullNumber'])->toBe('01/2025/311916');
-    expect($array['ShipmentData']['Sender']['CompanyName'])->toBe('La Sportiva C/o Movimoda');
+    expect($array['InterchangeToken'])->toBe('your-interchange-token');
+    expect($array['ShipmentData']['EditShipmentFullNumber'])->toBe('01/2025/000001');
+    expect($array['ShipmentData']['Sender']['CompanyName'])->toBe('Sender S.r.l.');
     expect($array['ShipmentData']['GoodsDetails'][0]['Sizes'])->toHaveCount(9);
     expect($array['ParcelLabelsGenerationMode'])->toBe('ZplOneForEachLabel');
 
@@ -455,7 +455,7 @@ it('can create a real-world La Sportiva shipment example', function () {
         $body = $request->body()->all();
 
         return $request->resolveEndpoint() === '/novaexchange/shipments'
-            && $body['InterchangeToken'] === 'NEW04V0GC831NVCZK81W9S3HMJPC23C'
-            && $body['ShipmentData']['EditShipmentFullNumber'] === '01/2025/311916';
+            && $body['InterchangeToken'] === 'your-interchange-token'
+            && $body['ShipmentData']['EditShipmentFullNumber'] === '01/2025/000001';
     });
 });
